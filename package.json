@@ -1,0 +1,21 @@
+{
+  "name": "okta-api-am",
+  "version": "1.0.0",
+  "description": "okta integrations with api managers and gateways",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "engines": {
+    "node": "6.11.3"
+  },
+  "author": "tom.smith@okta.com",
+  "dependencies": {
+    "body-parser": "^1.18.2",
+    "dotenv": "^4.0.0",
+    "express": "^4.16.2",
+    "express-session": "^1.15.6",
+    "fs": "0.0.1-security",
+    "request": "^2.83.0"
+  }
+}

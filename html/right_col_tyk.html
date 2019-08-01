@@ -1,0 +1,62 @@
+
+				<div class = "panel panel-default">
+					<div class = "panel-heading">
+						SILVER Access: A list of the planets
+					</div>
+					<div class = "panel-body">
+						<div class = "row">
+							<div class = "col-sm-6">
+								<p>username: carl.sagan
+								<br>
+								</p>
+							</div>
+							<div class = "col-sm-6" style="text-align: center;">
+								<button type="button" class="btn btn-default" onclick="redirectToOkta('silver')">authenticate</button>
+							</div>
+						</div>
+
+						<span id = "planetsLink">proxy endpoint: {{proxy_uri}}/planets</span>
+
+						<div style= "text-align: center; padding-top: 10px">
+							<button type="button" class="btn btn-info" onclick="getData('planets')">show me the planets!</button>
+						</div>
+
+						<div class="panel panel-primary" style ="margin-top:10px">
+							<div class="panel-heading">
+								<h3 class="panel-title">Planets</h3>
+							</div>
+							<div class="panel-body" id = "results_planets"></div>
+						</div>
+					</div>
+				</div>
+
+				<div class = "panel panel-warning">
+					<div class = "panel-heading">
+						GOLD Access: A list of (selected) moons
+					</div>
+					<div class = "panel-body">
+						<div class = "row">
+							<div class = "col-sm-6">
+								<p>username: jodie.foster
+								<br>
+								password:</p>
+							</div>
+							<div class = "col-sm-6" style="text-align: center;">
+								<button type="button" class="btn btn-warning" onclick="redirectToOkta('gold')">authenticate</button>
+							</div>
+						</div>
+						<span id = "moonsLink">proxy endpoint: {{proxy_uri}}/moons</span>
+
+						<div style= "text-align: center; padding-top: 10px">
+							<button type="button" class="btn btn-info" onclick="getData('moons')">show me some moons!</button>
+						</div>
+
+						<div class="panel panel-primary" style ="margin-top:10px">
+							<div class="panel-heading">
+								<h3 class="panel-title">Moons</h3>
+							</div>
+							<div class="panel-body" id = "results_moons"></div>
+						</div>
+
+					</div>
+				</div>
