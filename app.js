@@ -5,9 +5,9 @@ require('dotenv').config();
 
 require('./cfg.js');
 
-var bodyParser = require('body-parser');
-
 const express = require('express');
+
+const mustacheExpress = require('mustache-express')
 
 var fs = require('fs');
 
@@ -22,7 +22,12 @@ app.use(express.static('public'));
 
 app.use(session({ secret: SESSION_SECRET, cookie: { maxAge: SESSION_MAX_AGE }}));
 
-app.use(bodyParser.json());
+app.use(express.json());
+
+app.engine('html', mustacheExpress())
+
+app.set('view engine', 'html')
+
 
 require('./routes.js')(app);
 

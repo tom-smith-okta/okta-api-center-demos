@@ -1,6 +1,4 @@
 
-var bodyParser = require('body-parser');
-
 var fs = require('fs');
 
 var request = require('request');
@@ -9,52 +7,56 @@ var session = require("express-session");
 
 //*******************************************/
 
+const config = require('./config.json');
+
+console.dir(config)
+
+//*******************************************/
+
 module.exports = function (app) {
 
-	app.get('/F5', function(req, res, next) {
+	app.get('/favicon.ico', function(req, res, next) {
+		res.sendStatus(200)
+	})
 
-		getPage("F5", "appAccess", function(err, webPage) {
-			if (err) { throw new Error(err) }
+	app.get('/:gateway', function(req, res, next) {
 
-			req.session.partner = req.params.partner;
+		const gateway = req.params.gateway
 
-			res.send(webPage);
-		});
-	});
+		console.log("the gateway is: " + gateway)
 
+		if (!(gateway_is_valid(gateway))) {
+			res.json({msg: "sorry, that is not a valid url."})
+			return
+		}
 
-	app.get('/:partner', function(req, res, next) {
+		params = {
+			...config,
+			...config.gateways[gateway]
+		}
 
-		getPage(req.params.partner, "apiAM", function(err, webPage) {
-			if (err) { throw new Error(err) }
+		params.gateway = gateway
+		params.redirect_uri = process.env.APP_URL + "/" + gateway
 
-			req.session.partner = req.params.partner;
+		console.dir(params)
 
-			res.send(webPage);
-		});
-	});
+		res.render('main', params)
+	})
 
 	app.post('/getAccessToken', function(req, res, next) {
-		var code = req.body.code;
 
-		console.log("the authorization code is: " + code);
+		const code = req.body.code
+		const gateway = req.body.gateway
+
+		console.log("the authorization code is: " + code)
+		console.log("the gateway is: " + gateway)
 
 		// exchange the authorization code
 		// for an access token
 
-		var url
+		const url = config.okta_issuer + "/v1/token"
 
-		if (req.session.partner === "tyk") {
-			url = "https://dev-511902.oktapreview.com/oauth2/ausfqw42xrkmpfDHI0h7/v1/token"
-		}
-		else {
-			url = OKTA_OAUTH_PATH + "token"
-		}
-
-		var redirect_uri = getRedirectURI(req.session.partner)
-
-		console.log("the url is: " + url);
-		console.log("the redirect_uri is: " + redirect_uri);
+		const redirect_uri = process.env.APP_URL + "/" + gateway
 
 		var options = {
 			method: 'POST',
@@ -69,14 +71,14 @@ module.exports = function (app) {
 				authorization: 'Basic ' + getBasicAuthString(req.session.partner),
 				'content-type': 'application/x-www-form-urlencoded'
 			}
-		};
+		}
 
 		request(options, function (error, response, body) {
 			if (error) throw new Error(error)
 
-			console.log(body);
+			console.log(body)
 
-			var obj = JSON.parse(body);
+			var obj = JSON.parse(body)
 
 			if (obj.hasOwnProperty("access_token")) {
 				req.session.access_token = obj.access_token;
@@ -89,12 +91,7 @@ module.exports = function (app) {
 			// send the access token to the introspection endpoint
 			// (for illustration purposes only)
 
-			if (req.session.partner === "tyk") {
-				url = "https://dev-511902.oktapreview.com/oauth2/ausfqw42xrkmpfDHI0h7/v1/introspect"
-			}
-			else {
-				url = OKTA_OAUTH_PATH + "introspect"
-			}
+			const url = config.okta_issuer + "/v1/introspect"
 
 			var options = {
 				method: 'POST',
@@ -102,38 +99,34 @@ module.exports = function (app) {
 				qs: { token: req.session.access_token },
 				headers: {
 					'cache-control': 'no-cache',
-					authorization: 'Basic ' + getBasicAuthString(req.session.partner),
+					authorization: 'Basic ' + getBasicAuthString(),
 					accept: 'application/json',
 					'content-type': 'application/x-www-form-urlencoded'
 				}
 			};
 
 			request(options, function (error, response, body) {
-				if (error) throw new Error(error);
+				if (error) throw new Error(error)
 
-				console.log("response from Okta: ");
-				console.log(body);
+				console.log("response from Okta: ")
+				console.log(body)
 
-				var data = {}
+				var data = {
+					access_token_introsp_response: body,
+					access_token: req.session.access_token
+				}
 
-				data.access_token_introsp_response = body;
-				data.access_token = req.session.access_token;
-
-				res.json(data);
-			});
-		});
-	});
+				res.json(data)
+			})
+		})
+	})
 
 	app.post('/getData', function(req, res, next) {
-		var endpoint = req.body.endpoint;
 
-		console.log("the requested endpoint is: " + endpoint);
+		const endpoint = req.body.endpoint;
+		const gateway = req.body.gateway;
 
-		console.log("the access_token token is: \n" + req.session.access_token + "\n");
-
-		// send the access token to the requested API endpoint
-
-		var url = getProxyURI(req.session.partner) + "/" + req.body.endpoint;
+		const url = config.gateways[gateway].gateway_url + "/" + req.body.endpoint;
 
 		var options = {
 			method: 'GET',
@@ -144,7 +137,7 @@ module.exports = function (app) {
 				accept: 'application/json',
 				'content-type': 'application/x-www-form-urlencoded'
 			}
-		};
+		}
 
 		request(options, function (error, response, body) {
 			if (error) throw new Error(error)
@@ -166,8 +159,8 @@ module.exports = function (app) {
 			else {
 				res.json(body)
 			}
-		});
-	});
+		})
+	})
 
 	app.post('/killSession', function(req, res, next) {
 		req.session.destroy(function(err) {
@@ -175,11 +168,11 @@ module.exports = function (app) {
 				console.log("unable to destroy session.")
 			}
 			else {
-				console.log("successfully destroyed session.");
+				console.log("successfully destroyed session.")
 			}
-			res.send("OK");
+			res.send("OK")
 		})
-	});
+	})
 
 	function getPage(partner, solutionType, callback) {
 
@@ -318,22 +311,22 @@ module.exports = function (app) {
 	}
 
 	function getProxyURI(partner) {
-		return _CFG[partner.toUpperCase()].PROXY_URI
+
+		return config[gateway].gateway_url
+		// return _CFG[partner.toUpperCase()].PROXY_URI
 	}
 
 	function getRedirectURI(partner) {
 		return REDIRECT_URI_BASE + "/" + partner;
 	}
 
-	function getBasicAuthString(partner) {
+	function getBasicAuthString() {
 
-		partner = partner.toUpperCase();
+		var x = config.okta_client_id + ":" + process.env.OKTA_CLIENT_SECRET
 
-		var x = getClientID(partner) + ":" + getClientSecret(partner);
+		var y = new Buffer(x).toString('base64')
 
-		var y = new Buffer(x).toString('base64');
-
-		return y;
+		return y
 	}
 
 	function getSettings() {
@@ -342,5 +335,15 @@ module.exports = function (app) {
 
 	function getTitle(partner) {
 		return "Okta API Access Management with " + getDisplayName(partner)
+	}
+
+	function gateway_is_valid(gateway) {
+
+		for (g in config.gateways) {
+			if (gateway == g) {
+				return true
+			}
+		}
+		return false
 	}
 }
