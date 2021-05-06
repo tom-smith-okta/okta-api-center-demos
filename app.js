@@ -12,7 +12,10 @@ var session = require("express-session");
 
 const app = express();
 
-app.use(session({ secret: SESSION_SECRET, cookie: { maxAge: SESSION_MAX_AGE }}));
+app.use(session({
+	secret: process.env.SESSION_SECRET,
+	cookie: { maxAge: parseInt(process.env.SESSION_MAX_AGE)}
+}))
 
 app.use(express.json());
 
