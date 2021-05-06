@@ -1,0 +1,35 @@
+
+    <div class="col-md-4" style="vertical-align: top">
+
+        <p>Okta is a standards-compliant OAuth 2.0 authorization server and a certified OpenID Provider.</p>
+
+        <p>Okta's OAuth 2.0 API provides API security via scoped access tokens, and OpenID Connect provides user authentication and an SSO layer which is lighter and easier to use than SAML.</p>
+
+        <p>This site shows how Okta integrates with several leading API gateways. However, any gateway that supports an external OAuth authorization server should work with Okta. Similarly, any gateway that supports jwt validation should work with Okta as well.</p>
+
+    </div>
+
+    <div class="col-md-4" style="vertical-align: top">
+
+        <table class="table table-sm table-striped">
+
+            <tr style="font-weight: bold;"><td>Gateway</td><td>Demo</td><td>Docs</td></tr>
+            {{# gateways_list}}
+            <tr>
+                <td>{{gateway_name}}</td>
+                <td>
+                    {{#demo}}
+                    <a href="/{{short_name}}">demo</a>
+                    {{/demo}}
+                </td>
+                <td>
+                    <a href="/{{{docs}}}">docs</a>
+                </td>
+            </tr>
+            {{/gateways_list}}
+        </table>
+    </div>
+
+    <div class="col-md-4" style="vertical-align: top">
+
+    </div>

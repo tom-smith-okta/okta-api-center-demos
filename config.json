@@ -3,10 +3,51 @@
     "okta_base_url": "https://partnerpoc.oktapreview.com",
     "okta_issuer": "https://partnerpoc.oktapreview.com/oauth2/ausce8ii5wBzd0zvQ0h7",
     "gateways": {
+        "apigee": {
+            "demo": true,
+            "docs": "https://github.com/tom-smith-okta/okta-api-center/tree/master/gateways/apigee",
+            "gateway_name": "Apigee",
+            "gateway_desc": "In this example, Apigee is proxying a 'solar system' API. When a resource is requested, Apigee is looking for a jwt - an Okta access token - in the header of the request. Apigee verifies the jwt against the key from the Okta authorization server's well-known endpoint. If the jwt is verified and contains the proper scopes, then the request is passed on to the target API endpoint.",
+            "gateway_url": "https://amer-api-partner14-prod.apigee.net/solar-system"
+        },
         "aws": {
-            "gateway_name": "AWS API gateway",
+            "demo": true,
+            "docs": "https://github.com/tom-smith-okta/okta-api-center/blob/master/gateways/aws/lambda.md",
+            "gateway_name": "AWS API Gateway (lambda authorizer)",
             "gateway_desc": "In this example, AWS API Gateway is proxying a 'solar system' API. When a resource is requested, AWS API Gateway passes the access token (jwt) to a Lambda function. The Lambda function verifies the jwt against the key from the Okta authorization server's well-known endpoint, constructs an AWS access policy dynamically, and sends the results back to the Gateway. If the policy contains the appropriate grants for the endpoint being requested, the Gateway passes the request on to the target API endpoint.",
             "gateway_url": "https://530kw7hqg8.execute-api.us-east-2.amazonaws.com/test"
+        },
+        "aws_jwt": {
+            "demo": false,
+            "docs": "https://github.com/tom-smith-okta/okta-api-center/blob/master/gateways/aws/readme.md",
+            "gateway_name": "AWS API Gateway (jwt authorizer)"
+        },
+        "gce": {
+            "demo": false,
+            "docs": "https://tom-smith-okta-api-center.s3.amazonaws.com/okta_google_cloud_endpoints.pdf",
+            "gateway_name": "Google Cloud Endpoints"
+        },
+        "kong": {
+            "demo": false,
+            "docs": "https://github.com/tom-smith-okta/okta-api-center/tree/master/gateways/kong#readme",
+            "gateway_name": "Kong (enterprise)"
+        },
+        "mulesoft": {
+            "demo": true,
+            "docs": "https://github.com/tom-smith-okta/okta-api-center/tree/master/gateways/mulesoft",
+            "gateway_name": "Mulesoft Anypoint",
+            "gateway_desc": "In this example, Mulesoft Anypoint is proxying a 'solar system' API. Mulesoft is using Okta's OAuth2-based authorization to check for a valid access token and the required scopes for the requested endpoint.",
+            "gateway_url": "http://okta-solar-system.cloudhub.io"
+        },
+        "swag": {
+            "demo": false,
+            "docs": "https://github.com/tom-smith-okta/okta-api-center/tree/master/gateways/swag",
+            "gateway_name": "Software AG"
+        },
+        "tyk": {
+            "demo": false,
+            "docs": "https://github.com/tom-smith-okta/okta-api-center/tree/master/gateways/tyk",
+            "gateway_name": "Tyk"
         }
     }
 }

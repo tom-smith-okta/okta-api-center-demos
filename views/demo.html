@@ -1,0 +1,102 @@
+
+			<div class="col-md-6" style="vertical-align: top">
+
+                <h4>Okta + {{gateway_name}}</h4>
+
+                <p>{{gateway_desc}}</p>
+
+                <p id = "getStarted">Just authenticate as one of the users on the right to get started.</p>
+
+                <div class="alert alert-success" id="successfulAuth" style="display: none">
+                    <strong>Success!</strong> The user has successfully authenticated and gotten an access token. The access token is sitting in a session on the server. Click one of the resource buttons to try and access an api resource and test the access token.
+                </div>
+                
+                <div id = "introspectResults">
+                    <div class = "panel panel-success">
+                        <div class = "panel-heading">
+                            Access token, decoded claims (via <i>/introspect</i> endpoint)
+                            <br>
+                            <span id="at_available">Access token is available in console</span>
+                        </div>
+                        <div class = "panel-body" id="decodedToken">[none]</div>
+                    </div>
+                </div>
+                
+                <div class="panel panel-info">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">readme</h3>
+                    </div>
+                    <div class="panel-body">
+                        <p>In this scenario, one user (Clark Kent) is subscribed to the "silver" level of access, which means he will be able to access the /planets endpoint with his access token by virtue of the "http://myapp.com/scp/silver" scope. Okta will mint the access token and include the "http://myapp.com/scp/silver" scope because Clark belongs to the "silverSubscribers" group in Okta.</p>
+                
+                        <p>Similarly, another user (Lois Lane) is subscribed to the "gold" level of access, which means she will be able to access the /moons endpoint, and she will also be able to access the /planets endpoint by virtue of the scopes included in her access token.</p>
+                
+                        <p>Try clicking on the buttons as an unauthenticated user, and then as Clark and Lois to get a sense of how the access tokens work with the API endpoints.</p>
+                
+                    </div>
+                </div>
+			</div>
+
+			<div class="col-md-6">
+				<div class = "panel panel-default">
+					<div class = "panel-heading">
+						SILVER Access: A list of the planets
+					</div>
+					<div class = "panel-body">
+						<div class = "row">
+							<div class = "col-sm-6">
+								<p>username: clark.kent
+								<br>
+								password: {{password}}</p>
+							</div>
+							<div class = "col-sm-6" style="text-align: center;">
+								<button type="button" class="btn btn-default" onclick="redirectToOkta('silver', 'clark.kent')">authenticate</button>
+							</div>
+						</div>
+
+						<span id = "planetsLink">proxy endpoint: {{gateway_url}}/planets</span>
+
+						<div style= "text-align: center; padding-top: 10px">
+							<button type="button" class="btn btn-info" onclick="getData('planets')">show me the planets!</button>
+						</div>
+
+						<div class="panel panel-primary" style ="margin-top:10px">
+							<div class="panel-heading">
+								<h3 class="panel-title">Planets</h3>
+							</div>
+							<div class="panel-body" id = "results_planets"></div>
+						</div>
+					</div>
+				</div>
+
+				<div class = "panel panel-warning">
+					<div class = "panel-heading">
+						GOLD Access: A list of (selected) moons
+					</div>
+					<div class = "panel-body">
+						<div class = "row">
+							<div class = "col-sm-6">
+								<p>username: lois.lane
+								<br>
+								password: {{password}}</p>
+							</div>
+							<div class = "col-sm-6" style="text-align: center;">
+								<button type="button" class="btn btn-warning" onclick="redirectToOkta('gold', 'lois.lane')">authenticate</button>
+							</div>
+						</div>
+						<span id = "moonsLink">proxy endpoint: {{gateway_url}}/moons</span>
+
+						<div style= "text-align: center; padding-top: 10px">
+							<button type="button" class="btn btn-info" onclick="getData('moons')">show me some moons!</button>
+						</div>
+
+						<div class="panel panel-primary" style ="margin-top:10px">
+							<div class="panel-heading">
+								<h3 class="panel-title">Moons</h3>
+							</div>
+							<div class="panel-body" id = "results_moons"></div>
+						</div>
+
+					</div>
+				</div>
+			</div>

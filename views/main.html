@@ -7,7 +7,7 @@
 
 	<!-- ******* TITLE OF PAGE ******** -->
 
-	<title>Okta integrations: {{gateway_name}}</title>
+	<title>{{title}}</title>
 
 	<link rel="shortcut icon" href="https://www.okta.com/sites/all/themes/developer/favicon.ico" type="image/vnd.microsoft.icon" />
 
@@ -82,6 +82,8 @@
 			if (exists) {
 				console.log("there is an active Okta session.");
 
+				$("#log_out_link").show()
+
 				oktaSignIn.session.get(function (res) {
 					$.ajax({
 						type: "GET",
@@ -104,7 +106,8 @@
 			}
 			else {
 				console.log("there is not an active Okta session.");
-				console.log("-------------------------------");
+				console.log("-------------------------------")
+				$("#log_out_link").hide()
 			}
 		});
 	}
@@ -171,7 +174,7 @@
 
 				$("#results_" + endpoint).html("<pre>" + JSON.stringify(obj, null, 1) + "</pre>")
 			}
-		});
+		})
 	}
 
 	function getNonce() {
@@ -182,7 +185,7 @@
 			text += possible.charAt(Math.floor(Math.random() * possible.length));
 		}
 
-		return text;
+		return text
 	}
 
 	function killSession(redirect_uri) {
@@ -209,7 +212,7 @@
 			else {
 				console.log("signed the user out successfully.");
 
-				var uri = '{{{okta_issuer}}}/v1/authorize?response_mode=fragment&response_type=code&client_id={{okta_client_id}}&redirect_uri={{{redirect_uri}}}&login_hint=clark.kent'
+				var uri = '{{{okta_issuer}}}/v1/authorize?response_mode=fragment&response_type=code&client_id={{okta_client_id}}&redirect_uri={{{redirect_uri}}}&login_hint=' + username
 
 				uri += '&state=' + getNonce();
 				uri += '&nonce=' + getNonce();
@@ -217,7 +220,9 @@
 
 				if (level == "silver" || level == "gold") { uri += " http://myapp.com/scp/silver"; }
 
-				if (level == "gold") { uri += " http://myapp.com/scp/gold"; }
+				if (level == "gold") {
+                    uri += " http://myapp.com/scp/gold";
+                }
 
 				localStorage.setItem("authURI", uri);
 
@@ -226,6 +231,19 @@
 				window.location = uri;
 			}
 		});
+	}
+
+	function redirect_to_oktaprise() {
+		signout(function(error, status) {
+			if (error) { console.log("could not sign the user out."); }
+			else {
+				console.log("signed the user out successfully.");
+
+				var uri = 'https://partnerpoc.oktapreview.com/oauth2/v1/authorize?idp=0oanfgh4kuGV3SBzm0h7&client_id=0oanfasmgdTWNt6K50h7&response_type=id_token&response_mode=fragment&scope=openid&redirect_uri=https://partnerpoc.oktapreview.com&state=somestate&nonce=somenonce'
+
+				window.location = uri
+			}
+		})
 	}
 
 	function signout(callback) {
@@ -283,51 +301,54 @@
 
 			<div id="navbar" class="navbar-collapse collapse">
 				<ul class="nav navbar-nav">
-					<li><a href="#" onclick="killSession('home')">Home</a></li>
-					<li><a href="#" onclick="killSession('self')">Log out</a></li>
 
 					<li class="dropdown">
 						<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Okta docs<span class="caret"></span></a>
 						<ul class="dropdown-menu">
 							<li><a href="https://developer.okta.com/use_cases/api_access_management/" target="_blank">Okta API access management</a></li>
-							<li><a href="https://drive.google.com/open?id=1ENgxK5dvyvxAuk1VNqShI2v10US2W6VX" target="_blank">Access token flow</a></li>
+							<li><a href="https://tom-smith-okta-api-center.s3.amazonaws.com/okta_authn_and_authz_single_slide.pdf" target="_blank">The flow</a></li>
 						</ul>
 					</li>
 
 					<li class="dropdown">
-						<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Gateways <span class="caret"></span></a>
+						<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Demos<span class="caret"></span></a>
 						<ul class="dropdown-menu">
-							<li><a href="/aws">Amazon API Gateway</a></li>
-
-							<li><a href="/apigee">Apigee</a></li>
-
-							<li><a href="/google">Google Cloud Endpoints</a></li>
-
-							<li><a href="/kong">Kong</a></li>
-
-							<li><a href="/mulesoft">Mulesoft</a></li>
-
-							<li><a href="/swag">Software AG</a></li>
-
-							<li><a href="/tyk">Tyk</a></li>
-
+							{{#gateways_list}}
+								{{#demo}}
+									<li><a href="/{{short_name}}">{{gateway_name}}</a></li>
+								{{/demo}}
+							{{/gateways_list}}
 						</ul>
 					</li>
 
-					<li><a href="https://partnerpoc.oktapreview.com/oauth2/v1/authorize?idp=0oanfgh4kuGV3SBzm0h7&client_id=0oanfasmgdTWNt6K50h7&response_type=id_token&response_mode=fragment&scope=openid&redirect_uri=https://partnerpoc.oktapreview.com&state=somestate&nonce=somenonce" target="_blank">View Okta tenant (Okta only)</a></li>
+					<li class="dropdown">
+						<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Docs <span class="caret"></span></a>
+						<ul class="dropdown-menu">
+							{{#gateways_list}}
+								<li><a href="{{{docs}}}" target="_blank">{{gateway_name}}</a></li>
+							{{/gateways_list}}
+						</ul>
+					</li>
+
+					<li class="dropdown">
+						<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Github <span class="caret"></span></a>
+						<ul class="dropdown-menu">
+							<li><a href="https://github.com/tom-smith-okta/okta-api-center" target="_blank">Sample app</a></li>
+							<li><a href="https://github.com/tom-smith-okta/okta-api-center-demos" target="_blank">This app</a></li>
+						</ul>
+					</li>
+
+					<li><a href="#" onclick="redirect_to_oktaprise()">Admin view (Okta SE only)</a></li>
+
+					<li><a href="#" id="log_out_link" onclick="killSession('self')" style="display:none">Log out</a></li>
 
 				</ul>
 
+				{{#demo}}
 				<ul class="nav navbar-nav navbar-right">
-					<li class="dropdown">
-						<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><strong>{{gateway_name}}</strong> <span class="caret"></span></a>
-						<ul class="dropdown-menu">
-
-							{{partner_links}}
-
-						</ul>
-					</li>
+					<li><a href="#">{{gateway_name}}</a></li>
 				</ul>
+				{{/demo}}
 
 			</div><!--/.nav-collapse -->
 		</div><!--/.container-fluid -->
@@ -335,107 +356,15 @@
 
 	<div class="well" style="background-color: rgb(234, 239, 247)">
 		<div class="row" style="vertical-align: top">
-			<div class="col-md-6" style="vertical-align: top">
 
-                <h4>Okta + {{gateway_name}}</h4>
+			{{#home}}
+            	{{>home}}
+			{{/home}}
 
-                <p>{{gateway_desc}}</p>
+			{{#demo}}
+				{{>demo}}
+			{{/demo}}
 
-                <p id = "getStarted">Just authenticate as one of the users on the right to get started.</p>
-
-                <div class="alert alert-success" id="successfulAuth" style="display: none">
-                    <strong>Success!</strong> The user has successfully authenticated and gotten an access token. The access token is sitting in a session on the server. Click one of the resource buttons to try and access an api resource and test the access token.
-                </div>
-                
-                <div id = "introspectResults">
-                    <div class = "panel panel-success">
-                        <div class = "panel-heading">
-                            Access token, decoded claims (via <i>/introspect</i> endpoint)
-                            <br>
-                            <span id="at_available">Access token is available in console</span>
-                        </div>
-                        <div class = "panel-body" id="decodedToken">[none]</div>
-                    </div>
-                </div>
-                
-                <div class="panel panel-info">
-                    <div class="panel-heading">
-                        <h3 class="panel-title">readme</h3>
-                    </div>
-                    <div class="panel-body">
-                        <p>In this scenario, one user (Clark Kent) is subscribed to the "silver" level of access, which means he will be able to access the /planets endpoint with his access token by virtue of the "http://myapp.com/scp/silver" scope. Okta will mint the access token and include the "http://myapp.com/scp/silver" scope because Clark belongs to the "silverSubscribers" group in Okta.</p>
-                
-                        <p>Similarly, another user (Lois Lane) is subscribed to the "gold" level of access, which means she will be able to access the /moons endpoint, and she will also be able to access the /planets endpoint by virtue of the scopes included in her access token.</p>
-                
-                        <p>Try clicking on the buttons as an unauthenticated user, and then as Clark and Lois to get a sense of how the access tokens work with the API endpoints.</p>
-                
-                    </div>
-                </div>
-			</div>
-
-			<div class="col-md-6">
-				<div class = "panel panel-default">
-					<div class = "panel-heading">
-						SILVER Access: A list of the planets
-					</div>
-					<div class = "panel-body">
-						<div class = "row">
-							<div class = "col-sm-6">
-								<p>username: clark.kent
-								<br>
-								password: mars</p>
-							</div>
-							<div class = "col-sm-6" style="text-align: center;">
-								<button type="button" class="btn btn-default" onclick="redirectToOkta('silver', 'clark.kent')">authenticate</button>
-							</div>
-						</div>
-
-						<span id = "planetsLink">proxy endpoint: {{gateway_url}}/planets</span>
-
-						<div style= "text-align: center; padding-top: 10px">
-							<button type="button" class="btn btn-info" onclick="getData('planets')">show me the planets!</button>
-						</div>
-
-						<div class="panel panel-primary" style ="margin-top:10px">
-							<div class="panel-heading">
-								<h3 class="panel-title">Planets</h3>
-							</div>
-							<div class="panel-body" id = "results_planets"></div>
-						</div>
-					</div>
-				</div>
-
-				<div class = "panel panel-warning">
-					<div class = "panel-heading">
-						GOLD Access: A list of (selected) moons
-					</div>
-					<div class = "panel-body">
-						<div class = "row">
-							<div class = "col-sm-6">
-								<p>username: lois.lane
-								<br>
-								password: mars</p>
-							</div>
-							<div class = "col-sm-6" style="text-align: center;">
-								<button type="button" class="btn btn-warning" onclick="redirectToOkta('gold', 'lois.lane')">authenticate</button>
-							</div>
-						</div>
-						<span id = "moonsLink">proxy endpoint: {{gateway_url}}/moons</span>
-
-						<div style= "text-align: center; padding-top: 10px">
-							<button type="button" class="btn btn-info" onclick="getData('moons')">show me some moons!</button>
-						</div>
-
-						<div class="panel panel-primary" style ="margin-top:10px">
-							<div class="panel-heading">
-								<h3 class="panel-title">Moons</h3>
-							</div>
-							<div class="panel-body" id = "results_moons"></div>
-						</div>
-
-					</div>
-				</div>
-			</div>
 		</div>
 	</div>
 </div>

@@ -1,6 +1,9 @@
-* client id setup
+# Okta API Center demos
 
-* whitelist redirect uris
-	* make sure you do this for each api gateway you are integrating with
+This is the app that drives the web site
 
-* you can create different client ids for different integrations
+`https://www.oktaapicenter.com`
+
+You are welcome to explore this app, but if you are looking for a good app to test out Okta's OAuth capabilities yourself, check out
+
+`https://github.com/tom-smith-okta/okta-api-center`

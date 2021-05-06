@@ -1,6 +1,4 @@
 
-var fs = require('fs');
-
 var request = require('request');
 
 var session = require("express-session");
@@ -8,6 +6,18 @@ var session = require("express-session");
 //*******************************************/
 
 const config = require('./config.json');
+
+gateways_list = []
+
+for (gateway in config.gateways) {
+	g = {
+		...{short_name: gateway},
+		...config.gateways[gateway]
+	}
+	gateways_list.push(g)
+}
+
+config.gateways_list = gateways_list
 
 console.dir(config)
 
@@ -17,6 +27,14 @@ module.exports = function (app) {
 
 	app.get('/favicon.ico', function(req, res, next) {
 		res.sendStatus(200)
+	})
+
+	app.get('/', function(req, res, next) {
+
+		params = config
+		params.home = true
+		params.title = "Okta API Center"
+		res.render('main', params)
 	})
 
 	app.get('/:gateway', function(req, res, next) {
@@ -35,8 +53,12 @@ module.exports = function (app) {
 			...config.gateways[gateway]
 		}
 
+		params.demo = true
 		params.gateway = gateway
+		params.home = false
+		params.password = process.env.PASSWORD
 		params.redirect_uri = process.env.APP_URL + "/" + gateway
+		params.title = "Okta integrations: " + params.gateways[gateway].gateway_name
 
 		console.dir(params)
 
@@ -173,177 +195,23 @@ module.exports = function (app) {
 			res.send("OK")
 		})
 	})
+}
 
-	function getPage(partner, solutionType, callback) {
+function getBasicAuthString() {
 
-		var main_file = './html/main.html'
+	var x = config.okta_client_id + ":" + process.env.OKTA_CLIENT_SECRET
 
-		if (partner === "tyk") { main_file = './html/main_tyk.html' }
+	var y = new Buffer(x).toString('base64')
 
-		console.log("the partner is: " + partner)
+	return y
+}
 
+function gateway_is_valid(gateway) {
 
-		fs.readFile(main_file, 'utf8', (error, page) => {
-
-			if (error) { throw new Error(error) }
-
-			fs.readFile('./html/' + partner + '.html', 'utf8', (error, partner_content) => {
-
-				console.log("the partner is: " + partner)
-
-				if (error) { throw new Error(error) }
-
-				page = page.replace(/{{title}}/g, getTitle(partner));
-
-				if (partner === "tyk"){
-
-					page = page.replace(/{{OKTA_TENANT}}/g, "https://dev-511902.oktapreview.com");
-					page = page.replace(/{{OKTA_OAUTH_PATH}}/g, "https://dev-511902.oktapreview.com/oauth2/ausfqw42xrkmpfDHI0h7/v1/");
-					page = page.replace(/{{CLIENT_ID}}/g, "0oakcq1b6aBTasykH0h7")
-					page = page.replace(/{{redirect_uri}}/g, getRedirectURI(partner))
-					page = page.replace(/{{partner}}/g, "tyk");
-					page = page.replace(/{{DISPLAY_NAME}}/g, "tyk");
-					page = page.replace(/{{partner_links}}/g, getLinks(partner));
-					page = page.replace(/{{partner_content}}/g, partner_content);
-					page = page.replace(/{{RESPONSE_TYPE}}/g, "code")
-
-					if (solutionType == "apiAM") {
-						fs.readFile('./html/left_col.html', 'utf8', (error, left_col) => {
-
-							page = page.replace(/{{left_col}}/g, left_col)
-
-							fs.readFile('./html/right_col_tyk.html', 'utf8', (error, right_col) => {
-
-								page = page.replace(/{{right_col}}/g, right_col)
-								page = page.replace(/{{proxy_uri}}/g, "http://52.14.100.89:8080/solar-system");
-
-								return callback(null, page);
-							});
-						});
-					}
-				}
-				else {
-					page = page.replace(/{{RESPONSE_TYPE}}/g, "code id_token")
-					page = page.replace(/{{OKTA_TENANT}}/g, OKTA_TENANT);
-					page = page.replace(/{{OKTA_OAUTH_PATH}}/g, OKTA_OAUTH_PATH);
-					page = page.replace(/{{CLIENT_ID}}/g, getClientID(partner));
-					page = page.replace(/{{redirect_uri}}/g, getRedirectURI(partner));
-					page = page.replace(/{{partner}}/g, partner);
-					page = page.replace(/{{DISPLAY_NAME}}/g, getDisplayName(partner));
-					page = page.replace(/{{partner_links}}/g, getLinks(partner));
-					page = page.replace(/{{partner_content}}/g, partner_content);
-
-					if (solutionType == "apiAM") {
-						fs.readFile('./html/left_col.html', 'utf8', (error, left_col) => {
-
-							page = page.replace(/{{left_col}}/g, left_col)
-
-							fs.readFile('./html/right_col.html', 'utf8', (error, right_col) => {
-
-								page = page.replace(/{{right_col}}/g, right_col)
-								page = page.replace(/{{proxy_uri}}/g, getProxyURI(partner));
-
-								return callback(null, page);
-							});
-						});
-					}
-					else {
-						page = page.replace(/{{left_col}}/g, "")
-
-						fs.readFile('./html/right_col/' + partner + '.html', 'utf8', (error, right_col) => {
-
-							page = page.replace(/{{right_col}}/g, right_col)
-							page = page.replace(/{{proxy_uri}}/g, getProxyURI(partner));
-
-							return callback(null, page);
-						});
-					}
-				}
-			});
-		});
-	}
-
-	function getClientID(partner) {
-
-		if (partner === "TYK") {
-			return "0oakcq1b6aBTasykH0h7"
+	for (g in config.gateways) {
+		if (gateway == g) {
+			return true
 		}
-
-		if (typeof _CFG[partner.toUpperCase()].CLIENT_ID === 'undefined') {
-			return OKTA_CLIENT_ID
-		}
-		return _CFG[partner.toUpperCase()].CLIENT_ID
 	}
-
-	function getClientSecret(partner) {
-
-		if (partner === "TYK") {
-			return "FDbfVijBzqLDoBMKjPZCRAxBU1Gun3KY0qMhbMwR"
-		}
-
-		if (typeof _CFG[partner.toUpperCase()].CLIENT_SECRET === 'undefined') {
-			return OKTA_CLIENT_SECRET
-		}
-		return _CFG[partner.toUpperCase()].CLIENT_SECRET
-	}
-
-	function getDisplayName(partner) {
-		if (typeof _CFG[partner.toUpperCase()].DISPLAY_NAME === 'undefined') {
-			return partner
-		}
-		return _CFG[partner.toUpperCase()].DISPLAY_NAME
-	}
-
-	function getLinks(partner) {
-
-		links = "<li><a href='/" + partner + "'>Demo</a></li>"
-
-		if (typeof _CFG[partner.toUpperCase()].LINKS === 'undefined') {
-			return links
-		}
-
-		links_arr = _CFG[partner.toUpperCase()].LINKS
-
-		for (i = 0; i < links_arr.length; i++) {
-			links += "\n<li><a href ='" + links_arr[i].href + "' target = '_blank'>" + links_arr[i].name + "</a></li>"
-		}
-		return links
-	}
-
-	function getProxyURI(partner) {
-
-		return config[gateway].gateway_url
-		// return _CFG[partner.toUpperCase()].PROXY_URI
-	}
-
-	function getRedirectURI(partner) {
-		return REDIRECT_URI_BASE + "/" + partner;
-	}
-
-	function getBasicAuthString() {
-
-		var x = config.okta_client_id + ":" + process.env.OKTA_CLIENT_SECRET
-
-		var y = new Buffer(x).toString('base64')
-
-		return y
-	}
-
-	function getSettings() {
-		console.log("the OAUTH_PATH is: " + getOAuthPath())
-	}
-
-	function getTitle(partner) {
-		return "Okta API Access Management with " + getDisplayName(partner)
-	}
-
-	function gateway_is_valid(gateway) {
-
-		for (g in config.gateways) {
-			if (gateway == g) {
-				return true
-			}
-		}
-		return false
-	}
+	return false
 }
