@@ -1,12 +1,12 @@
 // Okta API Access Management
 
-require('dotenv').config();
+require('dotenv').config()
 
-const express = require('express');
+const express = require('express')
 
 const mustacheExpress = require('mustache-express')
 
-var session = require("express-session");
+var session = require("express-session")
 
 ///////////////////////////////////////////////////
 

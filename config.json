@@ -20,7 +20,7 @@
         "aws_jwt": {
             "demo": false,
             "docs": "https://github.com/tom-smith-okta/okta-api-center/blob/master/gateways/aws/readme.md",
-            "gateway_name": "AWS API Gateway (jwt authorizer)"
+            "gateway_name": "AWS API Gateway (jwt validation)"
         },
         "gce": {
             "demo": false,
@@ -35,9 +35,14 @@
         "mulesoft": {
             "demo": true,
             "docs": "https://github.com/tom-smith-okta/okta-api-center/tree/master/gateways/mulesoft",
-            "gateway_name": "Mulesoft Anypoint",
+            "gateway_name": "Mulesoft Anypoint (OIDC provider)",
             "gateway_desc": "In this example, Mulesoft Anypoint is proxying a 'solar system' API. Mulesoft is using Okta's OAuth2-based authorization to check for a valid access token and the required scopes for the requested endpoint.",
             "gateway_url": "http://okta-solar-system.cloudhub.io"
+        },
+        "mulesoft_jwt": {
+            "demo": false,
+            "docs": "https://github.com/tom-smith-okta/okta-api-center/blob/master/gateways/mulesoft/jwt_validation_readme.md",
+            "gateway_name": "Mulesoft Anypoint (jwt validation)"
         },
         "swag": {
             "demo": false,
